@@ -38,5 +38,15 @@ int main()
         students.push_back(student);
     }
 
+#ifdef _DEBUG
+
+    // Only display students when running in Debug mode
+    for (const STUDENT_DATA& student : students)
+    {
+        cout << student.firstName << " " << student.lastName << endl;
+    }
+
+#endif
+
     return 1;
 }
