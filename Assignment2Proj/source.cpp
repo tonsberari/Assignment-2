@@ -1,3 +1,5 @@
+#define PRE_RELEASE
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -9,41 +11,70 @@ struct STUDENT_DATA
 {
     string firstName;
     string lastName;
+    string email;
 };
 
 int main()
 {
+    // Display which version is running
+#ifdef PRE_RELEASE
+    cout << "Running Pre-Release Version" << endl;
+#else
+    cout << "Running Standard Version" << endl;
+#endif
+
     // Create a vector to store all students
     vector<STUDENT_DATA> students;
 
-    // Open the student data file
+    // Choose which file to open
+#ifdef PRE_RELEASE
+    ifstream inputFile("StudentData_Emails.txt");
+#else
     ifstream inputFile("StudentData.txt");
+#endif
 
     string line;
 
     // Read the file one line at a time
     while (getline(inputFile, line))
     {
-        // Find the comma between first and last name
-        size_t commaPosition = line.find(',');
+        size_t firstComma = line.find(',');
+        size_t secondComma = line.find(',', firstComma + 1);
 
-        // Create a student
         STUDENT_DATA student;
 
-        // Separate first name and last name
-        student.firstName = line.substr(0, commaPosition);
-        student.lastName = line.substr(commaPosition + 1);
+        // Get first name
+        student.firstName = line.substr(0, firstComma);
 
-        // Add the student to the vector
+#ifdef PRE_RELEASE
+        // Pre-Release file has first name, last name, and email
+        student.lastName = line.substr(
+            firstComma + 1,
+            secondComma - firstComma - 1
+        );
+
+        student.email = line.substr(secondComma + 1);
+#else
+        // Standard file only has first name and last name
+        student.lastName = line.substr(firstComma + 1);
+#endif
+
+        // Add student to vector
         students.push_back(student);
     }
 
+    // Only print student information in Debug mode
 #ifdef _DEBUG
 
-    // Only display students when running in Debug mode
     for (const STUDENT_DATA& student : students)
     {
-        cout << student.firstName << " " << student.lastName << endl;
+        cout << student.firstName << " " << student.lastName;
+
+#ifdef PRE_RELEASE
+        cout << " - " << student.email;
+#endif
+
+        cout << endl;
     }
 
 #endif
